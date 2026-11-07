@@ -1,0 +1,9 @@
+# Keys and local state never leave this machine; Vercel gets its env vars from the project settings.
+.env
+.env.*
+!.env.example
+data/
+.next/
+node_modules/
+*.log
+AGENTS.md

@@ -10,6 +10,8 @@ For every upgrade it diffs the Move ABI between versions, hashes each module's b
 
 Built for the Total Recall hackathon (Tatum x Walrus), Track 2 "Smart Agents for Real Life".
 
+**Live:** [watchseal.vercel.app](https://watchseal.vercel.app), with the app at [/dashboard](https://watchseal.vercel.app/dashboard). It runs against Sui Mainnet, Walrus Memory Mainnet and Claude, in its own memory namespace. Its local state (watchlist, alerts) lives in the server instance and starts over when Vercel recycles it; the memories stay on Walrus.
+
 ![WatchSeal live on Mainnet: Claude rates Cetus CLMM v12 critical because a standing rule recalled from Walrus Memory matched governance_fund_withdrawal; without memory it is high](docs/screenshot-live.jpg)
 
 *A live run on Mainnet. Tatum gRPC served the chain reads and Claude wrote the verdict. Memory raised Cetus v12 from high to critical, and the memory column shows the Walrus relayer confirming all 18 memories the app wrote.*
@@ -168,7 +170,7 @@ test/                replay test and unit tests
 .github/workflows/   CI: typecheck, tests and build on Node 24
 ```
 
-App state (watchlist, alerts, memory write log, counters) lives in `data/state.json`. Walrus is the source of truth for what was learned.
+App state (watchlist, alerts, memory write log, counters) lives in `data/state.json`, or wherever `WATCHSEAL_STATE_FILE` points (the Vercel deployment uses `/tmp`). Walrus is the source of truth for what was learned.
 
 ## License
 

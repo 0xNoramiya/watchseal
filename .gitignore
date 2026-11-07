@@ -12,3 +12,6 @@ next-env.d.ts
 
 # written by next dev
 AGENTS.md
+
+# Vercel CLI project link
+.vercel

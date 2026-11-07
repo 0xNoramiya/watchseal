@@ -3,8 +3,49 @@ import { getEngine } from "@/lib/engine";
 import { humanizeError } from "@/lib/errors";
 import type { TriageLabel } from "@/lib/memory/format";
 
+// Every API endpoint lives in this one handler on purpose. On Vercel each route file becomes its own
+// function, and the engine's state lives in the instance, so separate files would not see each other's
+// writes. The URLs stay /api/state, /api/status, /api/recall, /api/inventory and /api/actions.
+
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
+
+type Params = { params: Promise<{ op: string }> };
+
+export async function GET(req: Request, { params }: Params) {
+  const { op } = await params;
+  const ws = getEngine();
+  switch (op) {
+    case "state":
+      return NextResponse.json(ws.view());
+    case "status":
+      return NextResponse.json(await ws.status());
+    case "recall": {
+      // Read-only semantic recall for the memory explorer: GET /api/recall?q=...&slug=...
+      const url = new URL(req.url);
+      try {
+        return NextResponse.json({ ok: true, ...(await ws.explore(url.searchParams.get("q") ?? "", url.searchParams.get("slug"))) });
+      } catch (err) {
+        return NextResponse.json({ ok: false, error: humanizeError(err) }, { status: 400 });
+      }
+    }
+    case "inventory":
+      // The relayer's inventory for this namespace, cross-checked against the write log.
+      try {
+        return NextResponse.json({ ok: true, ...(await ws.inventory()) });
+      } catch (err) {
+        return NextResponse.json({ ok: false, error: humanizeError(err) }, { status: 502 });
+      }
+    default:
+      return NextResponse.json({ ok: false, error: "Not found." }, { status: 404 });
+  }
+}
+
+export async function POST(req: Request, { params }: Params) {
+  const { op } = await params;
+  if (op !== "actions") return NextResponse.json({ ok: false, error: "Not found." }, { status: 404 });
+  return runAction(req);
+}
 
 type Body =
   | { op: "add"; originalId: string; name?: string; mode: "replay" | "live"; startVersion?: number | string }
@@ -18,7 +59,7 @@ type Body =
 
 const LABELS: TriageLabel[] = ["expected", "suspicious", "false-positive"];
 
-export async function POST(req: Request) {
+async function runAction(req: Request) {
   const ws = getEngine();
   let body: Body;
   try {
