@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/0xNoramiya/watchseal/actions/workflows/ci.yml/badge.svg)](https://github.com/0xNoramiya/watchseal/actions/workflows/ci.yml)
 
-![WatchSeal: a harbor seal keeps watch above four depth bands, one sounding reaching the abyss](docs/cover.jpg)
+![WatchSeal: a harbor seal keeps watch above four depth bands, one sounding reaching the abyss](public/cover.jpg)
 
 WatchSeal watches Sui protocols for package upgrades and learns how you triage them.
 
@@ -10,15 +10,9 @@ For every upgrade it diffs the Move ABI between versions, hashes each module's b
 
 Built for the Total Recall hackathon (Tatum x Walrus), Track 2 "Smart Agents for Real Life".
 
-## Demo video
-
-[![WatchSeal demo, 2:54: Cetus CLMM v9 to v15 replayed live, memory changing the verdicts](docs/demo-poster.jpg)](https://github.com/0xNoramiya/watchseal/releases/download/v0.1.0/watchseal-demo.mp4)
-
-2 minutes 54 seconds, recorded against Sui Mainnet with live Tatum, Walrus Memory and Claude. Waits for Walrus writes and Claude are fast-forwarded and marked on screen; everything else plays at normal speed. [Download the MP4](https://github.com/0xNoramiya/watchseal/releases/download/v0.1.0/watchseal-demo.mp4).
-
 ![WatchSeal live on Mainnet: Claude rates Cetus CLMM v12 critical because a standing rule recalled from Walrus Memory matched governance_fund_withdrawal; without memory it is high](docs/screenshot-live.jpg)
 
-*From the live run in the demo video. Tatum gRPC served the chain reads and Claude wrote the verdict. Memory raised Cetus v12 from high to critical, and the memory column shows the Walrus relayer confirming all 18 memories the app wrote.*
+*A live run on Mainnet. Tatum gRPC served the chain reads and Claude wrote the verdict. Memory raised Cetus v12 from high to critical, and the memory column shows the Walrus relayer confirming all 18 memories the app wrote.*
 
 ## How it works
 
@@ -76,7 +70,7 @@ Real Cetus CLMM history, replayed offline (`npm test`):
 | Walrus Memory writes on Mainnet (10+) | `npm run seed-memory` writes 12 baseline, authority and rule memories for Cetus and DeepBook to the Mainnet relayer and prints each blob id. Every label, rule and trusted signer in the app writes another. The dashboard's "Memory on Walrus" column lists them with blob ids and checks them against the relayer's own inventory (`listMemories`), so each one is marked verified on Walrus. |
 | Tatum RPC for onchain reads | `src/lib/chain/tatum.ts`, `src/lib/chain/grpc-reader.ts`. All live reads (package versions, ABI, bytecode, upgrade tx, UpgradeCap) go through Tatum Sui gRPC. The top bar counts Tatum calls and archival calls separately. |
 | Agent that learns over time | `src/lib/engine.ts` (recall and triage), `src/lib/analysis/risk.ts` (how memories move the verdict), `src/lib/agent/claude.ts` |
-| Public repo, demo, blog | This repo, the [demo video](https://github.com/0xNoramiya/watchseal/releases/download/v0.1.0/watchseal-demo.mp4) and its script in [`DEMO.md`](DEMO.md), [`BLOG.md`](BLOG.md). Cover, video title card and social preview are in `docs/` (illustration generated with Higgsfield GPT Image 2). |
+| Public repo, demo, blog | This repo. The demo video and the blog post are linked from the submission. The cover illustration was generated with Higgsfield GPT Image 2. |
 
 For the submission form, `MEMWAL_AGENT_ID` is the delegate public key. `npm run smoke` and `npm run seed-memory` print it, and the dashboard shows it in the memory column.
 
@@ -142,7 +136,7 @@ The upgrade-history drawing is generated from a config. In development, `/lab/ec
 | `npm run seed-memory` | Writes 12 real starting memories to Walrus Mainnet and waits for every blob id. |
 | `npm run record-fixtures` | Re-records Cetus and DeepBook history from Mainnet into `fixtures/`. |
 | `npm run generate-sfx` | Regenerates the underwater UI sounds in `public/sfx/` with the ElevenLabs Sound Effects API (needs `ELEVENLABS_API_KEY`; `npx -y @elevenlabs/cli@latest onboard init` stores one in `.env.local`). The site only plays the saved files. |
-| `npm test` | 30 offline tests (`node:test`, MemWalMock, deterministic engine). The replay test runs Cetus v9 to v15 with the triage script above and checks that memory changes the v10 and v14 verdicts. Unit tests cover the ABI normalizer, diff and signals, the memory format and rule parser, the scoring guardrails, agent output parsing and the echogram renderer. CI runs them on every push. |
+| `npm test` | 34 offline tests (`node:test`, MemWalMock, deterministic engine). The replay test runs Cetus v9 to v15 with the triage script above and checks that memory changes the v10 and v14 verdicts. Unit tests cover the ABI normalizer, diff and signals, the memory format and rule parser, the scoring guardrails, agent output parsing and the echogram renderer. CI runs them on every push. |
 | `npm run typecheck`, `npm run build` | TypeScript and the Next.js production build. |
 
 ## Memory format
@@ -168,7 +162,7 @@ src/lib/agent/       Claude agent (structured output) and deterministic fallback
 src/lib/engine.ts    watchlist, replay, live scan, cap check, triage, rules, compare
 src/lib/echogram/    pure SVG renderer for the upgrade history, plus the saved config.json
 src/app/             Next.js dashboard and API routes (src/app/lab/echogram is the dev-only generator)
-scripts/             smoke, seed-memory, record-fixtures; scripts/video records and cuts the demo video
+scripts/             smoke, seed-memory, record-fixtures, generate-sfx
 fixtures/            recorded Mainnet history for Cetus CLMM v8 to v15 and DeepBook v4 to v9
 test/                replay test and unit tests
 .github/workflows/   CI: typecheck, tests and build on Node 24
