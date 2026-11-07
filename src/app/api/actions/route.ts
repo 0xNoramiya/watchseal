@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getEngine } from "@/lib/engine";
+import { humanizeError } from "@/lib/errors";
 import type { TriageLabel } from "@/lib/memory/format";
 
 export const dynamic = "force-dynamic";
@@ -62,6 +63,6 @@ export async function POST(req: Request) {
     }
     return NextResponse.json({ ok: true, result, state: ws.view() });
   } catch (err) {
-    return NextResponse.json({ ok: false, error: err instanceof Error ? err.message : String(err) }, { status: 400 });
+    return NextResponse.json({ ok: false, error: humanizeError(err) }, { status: 400 });
   }
 }

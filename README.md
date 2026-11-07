@@ -10,6 +10,12 @@ For every upgrade it diffs the Move ABI between versions, hashes each module's b
 
 Built for the Total Recall hackathon (Tatum x Walrus), Track 2 "Smart Agents for Real Life".
 
+## Demo video
+
+[![WatchSeal demo, 2:54: Cetus CLMM v9 to v15 replayed live, memory changing the verdicts](docs/demo-poster.jpg)](https://github.com/0xNoramiya/watchseal/releases/download/v0.1.0/watchseal-demo.mp4)
+
+2 minutes 54 seconds, recorded against Sui Mainnet with live Tatum, Walrus Memory and Claude. Waits for Walrus writes and Claude are fast-forwarded and marked on screen; everything else plays at normal speed. [Download the MP4](https://github.com/0xNoramiya/watchseal/releases/download/v0.1.0/watchseal-demo.mp4).
+
 ![WatchSeal live on Mainnet: Claude rates Cetus CLMM v12 critical because a standing rule recalled from Walrus Memory matched governance_fund_withdrawal; without memory it is high](docs/screenshot-live.png)
 
 *From a live run. Tatum gRPC served the chain reads, the memories sit on Walrus Mainnet (blob ids in the right column), and Claude wrote the verdict. Memory raised Cetus v12 from high to critical.*
@@ -70,7 +76,7 @@ Real Cetus CLMM history, replayed offline (`npm test`):
 | Walrus Memory writes on Mainnet (10+) | `npm run seed-memory` writes 12 baseline, authority and rule memories for Cetus and DeepBook to the Mainnet relayer and prints each blob id. Every label, rule and trusted signer in the app writes another. The dashboard's "Memory on Walrus" column lists them with status and blob ids. |
 | Tatum RPC for onchain reads | `src/lib/chain/tatum.ts`, `src/lib/chain/grpc-reader.ts`. All live reads (package versions, ABI, bytecode, upgrade tx, UpgradeCap) go through Tatum Sui gRPC. The top bar counts Tatum calls and archival calls separately. |
 | Agent that learns over time | `src/lib/engine.ts` (recall and triage), `src/lib/analysis/risk.ts` (how memories move the verdict), `src/lib/agent/claude.ts` |
-| Public repo, demo, blog | This repo, [`DEMO.md`](DEMO.md), [`BLOG.md`](BLOG.md). Cover, video title card and social preview are in `docs/` (illustration generated with Higgsfield GPT Image 2). |
+| Public repo, demo, blog | This repo, the [demo video](https://github.com/0xNoramiya/watchseal/releases/download/v0.1.0/watchseal-demo.mp4) and its script in [`DEMO.md`](DEMO.md), [`BLOG.md`](BLOG.md). Cover, video title card and social preview are in `docs/` (illustration generated with Higgsfield GPT Image 2). |
 
 For the submission form, `MEMWAL_AGENT_ID` is the delegate public key. `npm run smoke` and `npm run seed-memory` print it, and the dashboard shows it in the memory column.
 
@@ -149,7 +155,7 @@ src/lib/agent/       Claude agent (structured output) and deterministic fallback
 src/lib/engine.ts    watchlist, replay, live scan, cap check, triage, rules, compare
 src/lib/echogram/    pure SVG renderer for the upgrade history, plus the saved config.json
 src/app/             Next.js dashboard and API routes (src/app/lab/echogram is the dev-only generator)
-scripts/             smoke, seed-memory, record-fixtures
+scripts/             smoke, seed-memory, record-fixtures; scripts/video records and cuts the demo video
 fixtures/            recorded Mainnet history for Cetus CLMM v8 to v15 and DeepBook v4 to v9
 test/                replay test and unit tests
 .github/workflows/   CI: typecheck, tests and build on Node 24

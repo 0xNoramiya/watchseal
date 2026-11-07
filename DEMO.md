@@ -37,6 +37,12 @@ Say: "Six upgrades in, it has learned what this team calls noise, and it still e
 **2:40 Close (20s).** Point at the upgrade history strip. The dark trace drops into the abyss at v10 and v12 and rises to the surface as the labels pile up, while the faint second echo shows where each verdict would have been without memory. Open "Ask the memory" and click "Who is allowed to upgrade Cetus?". A live semantic recall from Walrus returns the two trusted signers, nearest first.
 Say: "WatchSeal. Tatum for the chain, Walrus for the memory."
 
+## How the published video was made
+
+The video in the [v0.1.0 release](https://github.com/0xNoramiya/watchseal/releases/tag/v0.1.0) follows this script, recorded by `scripts/video/record-demo.mjs` against a production build with live Tatum, Walrus Memory and Claude, in a freshly seeded namespace. The script logs a timestamp for every beat. `scripts/video/make_cut.py` then keeps the actions at normal speed, fast-forwards the waits for Walrus and Claude (with an on-screen badge), adds the captions, and adds the title and end cards.
+
+In that take, v14 came out medium rather than low. The v13 and v12 labels lowered it, and the v11 "suspicious" label on the `config` change raised it again, so a label the analyst added on a hunch at v11 still matters three upgrades later. The captions describe that run as it happened.
+
 ## If something goes wrong on camera
 
 - **A memory write stays pending.** The next alert still includes it, marked "still writing to Walrus".

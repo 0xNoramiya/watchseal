@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { extractJson } from "../src/lib/agent/claude";
+import { humanizeError } from "../src/lib/errors";
 import { diffPackages } from "../src/lib/analysis/diff";
 import { assess, enforceMemoryEffect, learnedBefore, levelFor } from "../src/lib/analysis/risk";
 import { computeSignals, isReadOnlyName, sensitiveWords, type Signal } from "../src/lib/analysis/signals";
@@ -265,5 +266,19 @@ describe("echogram", () => {
       const { svg } = renderEchogram({ ...DEFAULT_CONFIG, mode }, CETUS_REHEARSAL);
       for (const p of CETUS_REHEARSAL) assert.ok(svg.includes(`v${p.version}`), `${mode} labels v${p.version}`);
     }
+  });
+});
+
+describe("error messages", () => {
+  test("common backend failures say what to do", () => {
+    assert.match(humanizeError(new Error("Received HTTP status code 429")), /^Tatum rate-limited/);
+    assert.match(humanizeError({ code: "UNAUTHENTICATED", message: "bad key" }), /TATUM_API_KEY/);
+    assert.match(humanizeError(new Error("14 UNAVAILABLE: No connection established")), /network connection/);
+    assert.match(humanizeError(new Error("5 NOT_FOUND: package 0x123 not found")), /no package with that ID/);
+    assert.match(humanizeError(new Error("archival GraphQL HTTP 502")), /archival Sui GraphQL/);
+  });
+
+  test("messages we already wrote pass through unchanged", () => {
+    assert.equal(humanizeError(new Error("Package ID must be a 0x-prefixed hex address.")), "Package ID must be a 0x-prefixed hex address.");
   });
 });

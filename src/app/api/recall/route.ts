@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getEngine } from "@/lib/engine";
+import { humanizeError } from "@/lib/errors";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +11,6 @@ export async function GET(req: Request) {
     const result = await getEngine().explore(url.searchParams.get("q") ?? "", url.searchParams.get("slug"));
     return NextResponse.json({ ok: true, ...result });
   } catch (err) {
-    return NextResponse.json({ ok: false, error: err instanceof Error ? err.message : String(err) }, { status: 400 });
+    return NextResponse.json({ ok: false, error: humanizeError(err) }, { status: 400 });
   }
 }
