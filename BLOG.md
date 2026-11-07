@@ -4,6 +4,8 @@
 
 ![A harbor seal keeps watch above four depth bands, like a sonar chart](docs/cover.jpg)
 
+The [3-minute demo video](https://github.com/0xNoramiya/watchseal/releases/download/v0.1.0/watchseal-demo.mp4) shows everything below, recorded against Sui Mainnet. The code is at [github.com/0xNoramiya/watchseal](https://github.com/0xNoramiya/watchseal).
+
 On 22 May 2025, the day of the Cetus exploit, the Cetus CLMM package on Sui was upgraded to v11. The ABI didn't change at all. Only the bytecode of one module, `config`, did. Most monitoring tools would say nothing happened. An analyst who knew the date would say something very much happened.
 
 That gap is what WatchSeal is about. Detecting an upgrade is easy. Knowing which upgrades matter for a given protocol is judgment, and that judgment lives in an analyst's head. WatchSeal writes it down in Walrus Memory and uses it on the next alert.
@@ -46,7 +48,7 @@ Analyst marked Cetus CLMM v13 as a false positive: ... Treat similar changes as 
 
 There are four kinds: baselines, known upgrade authorities, triage labels and standing rules. Writes go through `@mysten-incubation/memwal`. `remember` returns a job id right away, and the relayer embeds, encrypts with SEAL and uploads to Walrus in the background. The dashboard shows every write as pending until its blob id comes back. Before rating the next alert, WatchSeal waits for in-flight writes, so the label you just gave counts immediately.
 
-For each alert it runs a handful of `recall` queries (the change itself, recent labels, standing rules, known authorities, the baseline), filters results by protocol tag, and hands the memories, with their ids, to Claude. Claude may only cite ids it was given, and the UI links every cited memory to its Walrus blob.
+For each alert it runs a handful of `recall` queries (the change itself, recent labels, standing rules, known authorities, the baseline), filters results by protocol tag, and hands the memories, with their ids, to Claude. Claude may only cite ids it was given, and the UI links every cited memory to its Walrus blob. The dashboard also reads the relayer's inventory for the namespace with `listMemories` and marks each memory it wrote as verified. That is how I know the 18 memories behind the demo video are really on Walrus, paid through epoch 58, and not just in my app's log.
 
 A few rules keep memory honest:
 
@@ -56,7 +58,7 @@ A few rules keep memory honest:
 
 ## How it learned over time
 
-The demo replays real Cetus CLMM history from v9, one upgrade at a time.
+The demo replays real Cetus CLMM history from v9, one upgrade at a time. This is the run in the video.
 
 **v10** adds flash loans, and the upgrade is signed by a new multisig, `0xdbfd…`, with the UpgradeCap moved to it. Without memory, WatchSeal rates it high. With memory it is critical. The v9 authority memory names `0x2891…` as the known signer, so this one is new. I label it expected (it was a planned rotation), and WatchSeal stores `0xdbfd…` as a known authority.
 
@@ -64,9 +66,13 @@ The demo replays real Cetus CLMM history from v9, one upgrade at a time.
 
 **v12** adds 38 functions, including `governance_fund_withdrawal` and `emergency_remove_malicious_position`. Without memory it is high. With memory it is critical, because the withdraw rule fired. I label it expected.
 
-**v13** churns the bytecode of all 13 modules and adds `emergency_unpause`. My earlier "expected" labels pull it from medium down to low. I label it a false positive, since it looks like dependency relink noise.
+**v13** churns the bytecode of all 13 modules and adds `emergency_unpause`. My earlier "expected" labels on v10 and v12 pull it down to low. I label it a false positive, since it looks like dependency relink noise.
 
-**v14** adds `create_pool_v3` and friends, with more bytecode churn. Without memory it is high. With memory it is low, and the memory influence panel cites the v13 false-positive memory and its blob id. Six upgrades in, WatchSeal has stopped shouting about the things I keep telling it are fine, and it still escalates the things I told it to watch. It is a little unsettling how quickly it adopts my judgment. That is why the guardrails above exist. It can learn my habits, but it can't learn to trust a signer I never approved.
+**v14** adds `create_pool_v3` and friends, with more bytecode churn, this time including `config`. Without memory it is high. With memory it is medium, and the memory influence panel shows three memories pulling in two directions. The v13 false-positive label and the v12 "expected" label pull it down. The v11 "suspicious" label I added on a hunch matches the `config` change and pulls it back up. That is the moment I trust most in the whole demo. A label from three upgrades earlier, with its reason attached, is still doing its job.
+
+I ran the replay twice that day. In the first run Claude didn't weigh the v11 label, and v14 landed at low. In the recorded run it did, and v14 stopped at medium. The direction was the same both times; the exact level depends on how Claude weighs memories that disagree. That is why the panel cites every memory it used, with its blob id, instead of just printing a level.
+
+Six upgrades in, WatchSeal has stopped shouting about the things I keep telling it are fine, and it still escalates the things I told it to watch. It is a little unsettling how quickly it adopts my judgment. That is why the guardrails above exist. It can learn my habits, but it can't learn to trust a signer I never approved.
 
 ## Drawing the learning
 
