@@ -12,6 +12,12 @@ Built for the Total Recall hackathon (Tatum x Walrus), Track 2 "Smart Agents for
 
 **Live:** [watchseal.vercel.app](https://watchseal.vercel.app), with the app at [/dashboard](https://watchseal.vercel.app/dashboard). It runs against Sui Mainnet, Walrus Memory Mainnet and Claude, in its own memory namespace. Its local state (watchlist, alerts) lives in the server instance and starts over when Vercel recycles it; the memories stay on Walrus.
 
+## Demo video
+
+[![WatchSeal demo video, 2:11, on YouTube](docs/demo-poster.jpg)](https://youtu.be/0kE8t7GH0bk)
+
+[Watch on YouTube](https://youtu.be/0kE8t7GH0bk) (2:11, captioned). Every product shot is the real app, recorded against Sui Mainnet with live Tatum gRPC, Walrus Memory and Claude. Waits for Walrus writes and Claude are fast-forwarded and marked on screen.
+
 ![WatchSeal live on Mainnet: Claude rates Cetus CLMM v12 critical because a standing rule recalled from Walrus Memory matched governance_fund_withdrawal; without memory it is high](docs/screenshot-live.jpg)
 
 *A live run on Mainnet. Tatum gRPC served the chain reads and Claude wrote the verdict. Memory raised Cetus v12 from high to critical, and the memory column shows the Walrus relayer confirming all 18 memories the app wrote.*
@@ -72,7 +78,7 @@ Real Cetus CLMM history, replayed offline (`npm test`):
 | Walrus Memory writes on Mainnet (10+) | `npm run seed-memory` writes 12 baseline, authority and rule memories for Cetus and DeepBook to the Mainnet relayer and prints each blob id. Every label, rule and trusted signer in the app writes another. The dashboard's "Memory on Walrus" column lists them with blob ids and checks them against the relayer's own inventory (`listMemories`), so each one is marked verified on Walrus. |
 | Tatum RPC for onchain reads | `src/lib/chain/tatum.ts`, `src/lib/chain/grpc-reader.ts`. All live reads (package versions, ABI, bytecode, upgrade tx, UpgradeCap) go through Tatum Sui gRPC. The top bar counts Tatum calls and archival calls separately. |
 | Agent that learns over time | `src/lib/engine.ts` (recall and triage), `src/lib/analysis/risk.ts` (how memories move the verdict), `src/lib/agent/claude.ts` |
-| Public repo, demo, blog | This repo. The demo video and the blog post are linked from the submission. The cover illustration was generated with Higgsfield GPT Image 2. |
+| Public repo, demo, blog | This repo, the [demo video](https://youtu.be/0kE8t7GH0bk), the [live deployment](https://watchseal.vercel.app), and the blog post linked from the submission. The cover illustration was generated with Higgsfield GPT Image 2. |
 
 For the submission form, `MEMWAL_AGENT_ID` is the delegate public key. `npm run smoke` and `npm run seed-memory` print it, and the dashboard shows it in the memory column.
 
