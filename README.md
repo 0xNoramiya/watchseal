@@ -78,7 +78,7 @@ Real Cetus CLMM history, replayed offline (`npm test`):
 | Walrus Memory writes on Mainnet (10+) | `npm run seed-memory` writes 12 baseline, authority and rule memories for Cetus and DeepBook to the Mainnet relayer and prints each blob id. Every label, rule and trusted signer in the app writes another. The dashboard's "Memory on Walrus" column lists them with blob ids and checks them against the relayer's own inventory (`listMemories`), so each one is marked verified on Walrus. |
 | Tatum RPC for onchain reads | `src/lib/chain/tatum.ts`, `src/lib/chain/grpc-reader.ts`. All live reads (package versions, ABI, bytecode, upgrade tx, UpgradeCap) go through Tatum Sui gRPC. The top bar counts Tatum calls and archival calls separately. |
 | Agent that learns over time | `src/lib/engine.ts` (recall and triage), `src/lib/analysis/risk.ts` (how memories move the verdict), `src/lib/agent/claude.ts` |
-| Public repo, demo, blog | This repo, the [demo video](https://youtu.be/0kE8t7GH0bk), the [live deployment](https://watchseal.vercel.app), and the blog post linked from the submission. The cover illustration was generated with Higgsfield GPT Image 2. |
+| Public repo, demo, blog | This repo, the [demo video](https://youtu.be/0kE8t7GH0bk), the [live deployment](https://watchseal.vercel.app), and the [blog post](https://blog.kudaliar.id/blog/watchseal/). The cover illustration was generated with Higgsfield GPT Image 2. |
 
 For the submission form, `MEMWAL_AGENT_ID` is the delegate public key. `npm run smoke` and `npm run seed-memory` print it, and the dashboard shows it in the memory column.
 
