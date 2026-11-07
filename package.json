@@ -17,7 +17,8 @@
     "smoke": "tsx scripts/smoke.ts",
     "seed-memory": "tsx scripts/seed-memory.ts",
     "record-fixtures": "tsx scripts/record-fixtures.ts",
-    "test": "tsx --test test/*.test.ts"
+    "test": "tsx --test test/*.test.ts",
+    "generate-sfx": "tsx scripts/generate-sfx.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "1.6.0",
@@ -31,6 +32,7 @@
     "react-dom": "19.1.10"
   },
   "devDependencies": {
+    "@elevenlabs/elevenlabs-js": "2.74.0",
     "@types/node": "24.19.2",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",

@@ -32,12 +32,21 @@ export function isNotFound(err: unknown): boolean {
   return /NOT_FOUND|not found/i.test(msg) || code === "NOT_FOUND";
 }
 
-export async function tatumCall<T>(fn: () => PromiseLike<T>, retries = 5): Promise<T> {
+/** Last-resort bound on a single call, on top of the gRPC deadline. */
+function withTimeout<T>(p: PromiseLike<T>, ms: number): Promise<T> {
+  let timer: NodeJS.Timeout | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`DEADLINE_EXCEEDED: Tatum call timed out after ${Math.round(ms / 1000)}s`)), ms);
+  });
+  return Promise.race([Promise.resolve(p), timeout]).finally(() => clearTimeout(timer));
+}
+
+export async function tatumCall<T>(fn: () => PromiseLike<T>, retries = 5, timeoutMs = 25_000): Promise<T> {
   let delay = 600;
   for (let attempt = 0; ; attempt++) {
     await waitForSlot();
     try {
-      return await fn();
+      return await withTimeout(fn(), timeoutMs);
     } catch (err) {
       if (attempt >= retries || !isTransient(err)) throw err;
       await sleep(delay + Math.random() * 200);

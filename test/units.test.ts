@@ -7,7 +7,7 @@ import { diffPackages } from "../src/lib/analysis/diff";
 import { assess, enforceMemoryEffect, learnedBefore, levelFor } from "../src/lib/analysis/risk";
 import { computeSignals, isReadOnlyName, sensitiveWords, type Signal } from "../src/lib/analysis/signals";
 import { bodyToString, normalizeModule, pbValueToJson } from "../src/lib/chain/normalize";
-import { isNotFound, isRateLimit } from "../src/lib/chain/throttle";
+import { isNotFound, isRateLimit, tatumCall } from "../src/lib/chain/throttle";
 import type { FnSig, PackageSnapshot, UpgradeTx } from "../src/lib/chain/types";
 import { DEFAULT_CONFIG, renderEchogram } from "../src/lib/echogram/render";
 import { CETUS_REHEARSAL } from "../src/lib/echogram/sample";
@@ -280,5 +280,20 @@ describe("error messages", () => {
 
   test("messages we already wrote pass through unchanged", () => {
     assert.equal(humanizeError(new Error("Package ID must be a 0x-prefixed hex address.")), "Package ID must be a 0x-prefixed hex address.");
+  });
+});
+
+describe("tatum calls", () => {
+  test("a call that never answers times out instead of hanging", async () => {
+    const t0 = Date.now();
+    await assert.rejects(() => tatumCall(() => new Promise(() => {}), 0, 150), /DEADLINE_EXCEEDED/);
+    assert.ok(Date.now() - t0 < 2000);
+  });
+
+  test("a timed-out call is retried", async () => {
+    let calls = 0;
+    const result = await tatumCall(() => (++calls === 1 ? new Promise<string>(() => {}) : Promise.resolve("ok")), 2, 150);
+    assert.equal(result, "ok");
+    assert.equal(calls, 2);
   });
 });

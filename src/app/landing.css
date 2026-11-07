@@ -64,6 +64,27 @@ body:has(.landing) {
   letter-spacing: -0.01em;
 }
 
+.l-nav-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.l-sound {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 550;
+  color: var(--seal);
+  background: rgba(248, 251, 252, 0.6);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 12px;
+}
+
+.l-sound[aria-pressed="true"] {
+  color: var(--deep);
+}
+
 .l-nav a {
   color: var(--deep);
   font-size: 15px;
@@ -80,9 +101,9 @@ body:has(.landing) {
 
 .l-hero-copy h1 {
   font-size: clamp(28px, 2.9vw, 44px);
-  line-height: 1.06;
-  font-weight: 650;
-  letter-spacing: -0.025em;
+  line-height: 1.08;
+  font-weight: 600;
+  letter-spacing: -0.018em;
   text-wrap: balance;
 }
 
@@ -334,8 +355,8 @@ body:has(.landing) {
   background: var(--deep);
   color: #d6e6ec;
   border-radius: 10px;
-  font-family: var(--font-mono);
-  font-size: 12.5px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 13px;
   line-height: 1.6;
   white-space: pre-wrap;
   overflow-wrap: anywhere;

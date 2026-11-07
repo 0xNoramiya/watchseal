@@ -4,6 +4,7 @@ import echogramConfig from "@/lib/echogram/config.json";
 import { renderEchogram, type EchogramConfig } from "@/lib/echogram/render";
 import { CETUS_REHEARSAL } from "@/lib/echogram/sample";
 import EchogramReveal from "./echogram-reveal";
+import { SfxClicks, SoundToggle } from "./landing-sound";
 import LiveCounters from "./live-counters";
 import "./landing.css";
 
@@ -48,7 +49,12 @@ export default function Landing() {
           <span className="l-mark">
             <img src="/seal.svg" alt="" width={28} height={28} /> WatchSeal
           </span>
-          <Link href="/dashboard">Open the dashboard</Link>
+          <span className="l-nav-right">
+            <SoundToggle />
+            <Link href="/dashboard" data-sfx="blub">
+              Open the dashboard
+            </Link>
+          </span>
         </nav>
         <div className="l-hero-copy">
           <h1 style={{ "--i": 0 } as CSSProperties}>The upgrade watchdog that learns what your team calls noise.</h1>
@@ -57,10 +63,10 @@ export default function Landing() {
             Memory. The next verdict is different because of them.
           </p>
           <div className="l-ctas" style={{ "--i": 2 } as CSSProperties}>
-            <Link className="l-btn primary" href="/dashboard">
+            <Link className="l-btn primary" href="/dashboard" data-sfx="blub">
               Open the dashboard
             </Link>
-            <a className="l-btn" href="#cetus">
+            <a className="l-btn" href="#cetus" data-sfx="blub">
               Watch it learn on Cetus
             </a>
           </div>
@@ -212,10 +218,11 @@ export default function Landing() {
           Built for Total Recall (Tatum x Walrus), November 2026. Chain reads via Tatum Sui gRPC, lessons kept in Walrus Memory, verdicts
           by Claude.
         </p>
-        <Link className="l-btn primary" href="/dashboard">
+        <Link className="l-btn primary" href="/dashboard" data-sfx="blub">
           Open the dashboard
         </Link>
       </footer>
+      <SfxClicks />
     </main>
   );
 }

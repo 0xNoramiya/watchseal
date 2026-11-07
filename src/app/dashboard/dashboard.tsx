@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Verdict } from "@/lib/agent/verdict";
 import type { RiskLevel } from "@/lib/analysis/risk";
 import type { Signal } from "@/lib/analysis/signals";
@@ -8,6 +8,7 @@ import type { Memory, TriageLabel } from "@/lib/memory/format";
 import type { MemoryLogEntry } from "@/lib/memory/store";
 import type { Counters } from "@/lib/metrics";
 import { renderEchogram, type EchogramConfig, type SoundingPoint } from "@/lib/echogram/render";
+import { playSfx, preloadSfx, setSoundEnabled, useSoundEnabled } from "@/lib/sfx";
 import echogramConfig from "@/lib/echogram/config.json";
 import type { Alert, WatchedProtocol } from "@/lib/state";
 
@@ -108,9 +109,14 @@ export default function Dashboard() {
     async (key: string, body: Record<string, unknown>, after?: (result: unknown) => void) => {
       setBusy(key);
       setError(null);
+      playSfx("blub");
       try {
         const { result, state } = await post(body);
         setView(state);
+        if (body.op === "next") {
+          playSfx("blublub");
+          if ((result as Alert).verdict?.risk === "critical") setTimeout(() => playSfx("sonar"), 450);
+        }
         after?.(result);
         refreshStatus();
       } catch (e) {
@@ -121,6 +127,21 @@ export default function Dashboard() {
     },
     [refreshStatus],
   );
+
+  // A soft bubble when a memory finishes its trip to Walrus (pending -> stored).
+  const seen = useRef(new Map<string, string>());
+  useEffect(() => {
+    const log = view?.memoryLog ?? [];
+    let landed = false;
+    for (const e of log) {
+      const before = seen.current.get(e.id);
+      if (before === "pending" && e.status === "stored") landed = true;
+      seen.current.set(e.id, e.status);
+    }
+    if (landed) playSfx("surface");
+  }, [view?.memoryLog]);
+  useEffect(() => preloadSfx(), []);
+  const sound = useSoundEnabled();
 
   const alerts = view?.alerts ?? [];
   // The protocol you are working on: the one you just added, pulled the next upgrade for, or selected an alert from.
@@ -155,6 +176,7 @@ export default function Dashboard() {
       const key = e.key.toLowerCase();
       if (key === "escape") return setHelp(false);
       if (e.key === "?") return setHelp((h) => !h);
+      if (key === "m") return setSoundEnabled(!sound);
       if (busy) return;
       const proto = view?.watchlist.find((w) => w.slug === focusSlug && w.mode === "replay") ?? view?.watchlist.find((w) => w.mode === "replay");
       const labels: Record<string, TriageLabel> = { e: "expected", s: "suspicious", f: "false-positive" };
@@ -173,11 +195,11 @@ export default function Dashboard() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [act, alerts, busy, current, view, focusSlug, focusOn, select]);
+  }, [act, alerts, busy, current, view, focusSlug, focusOn, select, sound]);
 
   return (
     <div className="app">
-      <TopBar status={status} counters={counters} onHelp={() => setHelp(true)} />
+      <TopBar status={status} counters={counters} onHelp={() => setHelp(true)} sound={sound} />
       {help && <ShortcutHelp onClose={() => setHelp(false)} />}
       {error && (
         <div className="error" role="alert">
@@ -217,6 +239,7 @@ const SHORTCUTS: [string, string][] = [
   ["F", "Label false positive"],
   ["C", "Compare without memory"],
   ["J / K", "Next / previous alert"],
+  ["M", "Sound on or off"],
   ["?", "Show or hide this list"],
 ];
 
@@ -245,7 +268,14 @@ function ShortcutHelp({ onClose }: { onClose: () => void }) {
   );
 }
 
-function TopBar({ status, counters, onHelp }: { status: Status | null; counters?: Counters; onHelp: () => void }) {
+/** "claude-sonnet-5-5" -> "Claude Sonnet 5.5" */
+function modelName(id: string): string {
+  const m = id.match(/^claude-([a-z]+)-(\d+)(?:-(\d+))?/);
+  if (!m) return id;
+  return `Claude ${m[1][0].toUpperCase()}${m[1].slice(1)} ${m[2]}${m[3] ? `.${m[3]}` : ""}`;
+}
+
+function TopBar({ status, counters, onHelp, sound }: { status: Status | null; counters?: Counters; onHelp: () => void; sound: boolean }) {
   const chainOk = status?.chain.mode === "tatum";
   const memOk = status?.memory.backend === "walrus" && status.memory.healthy;
   const agentOk = status?.agent.engine === "claude";
@@ -259,24 +289,29 @@ function TopBar({ status, counters, onHelp }: { status: Status | null; counters?
         </div>
       </a>
       <div className="backends">
-        <Backend ok={chainOk} label="Chain" value={!status ? "…" : chainOk ? `Tatum Sui gRPC (${status.chain.transport})` : "Recorded fixtures (offline)"} />
+        <Backend ok={chainOk} label="Chain" value={!status ? "…" : chainOk ? "Tatum Sui gRPC" : "Recorded history (offline)"} />
         <Backend
           ok={memOk}
           label="Memory"
           value={!status ? "…" : status.memory.backend === "walrus" ? `Walrus Mainnet${status.memory.healthy ? "" : " (unreachable)"}` : "Offline mock"}
           extra={status?.memory.pending ? `${status.memory.pending} writing` : undefined}
         />
-        <Backend ok={agentOk} label="Agent" value={!status ? "…" : agentOk ? `Claude ${status.agent.model}` : "Fallback engine"} />
+        <Backend ok={agentOk} label="Agent" value={!status ? "…" : agentOk ? modelName(status.agent.model) : "Fallback engine"} />
       </div>
+      <div className="topbar-right">
       <dl className="counters">
         <Counter k="Tatum gRPC calls" v={counters?.tatumCalls} />
         <Counter k="Archival reads" v={counters?.archivalCalls} />
         <Counter k="Memories written" v={counters?.memoryStored} />
         <Counter k="Recalls" v={counters?.memoryRecalls} />
       </dl>
+      <button className="sound-toggle" onClick={() => setSoundEnabled(!sound)} aria-pressed={sound} title={sound ? "Sound on (M to mute)" : "Sound off (M to unmute)"}>
+        {sound ? "Sound on" : "Sound off"}
+      </button>
       <button className="kbd-hint" onClick={onHelp} aria-label="Keyboard shortcuts">
         <kbd>?</kbd>
       </button>
+      </div>
     </header>
   );
 }
@@ -605,7 +640,7 @@ function AlertDetail({ alert: a, busy, act, memoryLog, backend }: { alert: Alert
           <h2 className="verdict-title">{v.title}</h2>
         </div>
         <div className="engine">
-          {v.engine === "claude" ? `Claude (${v.model})` : "Fallback engine"}
+          {v.engine === "claude" ? modelName(v.model ?? "") : "Fallback engine"}
           {v.note && <span className="muted engine-note">{v.note}</span>}
         </div>
       </div>
@@ -1107,6 +1142,7 @@ function MemoryExplorer({ slug, backend }: { slug: string | null; backend: "walr
       const body = await r.json();
       if (!body.ok) throw new Error(body.error);
       setRes(body);
+      playSfx("blub");
     } catch (e) {
       setErr((e as Error).message);
     } finally {

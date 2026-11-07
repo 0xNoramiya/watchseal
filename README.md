@@ -141,6 +141,7 @@ The upgrade-history drawing is generated from a config. In development, `/lab/ec
 | `npm run smoke` | Tatum `listPackageVersions` and `getPackage` on Cetus, bytecode, upgrade tx and UpgradeCap; Walrus Memory health plus one remember and recall; one Claude call. Reports PASS, FAIL or SKIP per backend. |
 | `npm run seed-memory` | Writes 12 real starting memories to Walrus Mainnet and waits for every blob id. |
 | `npm run record-fixtures` | Re-records Cetus and DeepBook history from Mainnet into `fixtures/`. |
+| `npm run generate-sfx` | Regenerates the underwater UI sounds in `public/sfx/` with the ElevenLabs Sound Effects API (needs `ELEVENLABS_API_KEY`; `npx -y @elevenlabs/cli@latest onboard init` stores one in `.env.local`). The site only plays the saved files. |
 | `npm test` | 30 offline tests (`node:test`, MemWalMock, deterministic engine). The replay test runs Cetus v9 to v15 with the triage script above and checks that memory changes the v10 and v14 verdicts. Unit tests cover the ABI normalizer, diff and signals, the memory format and rule parser, the scoring guardrails, agent output parsing and the echogram renderer. CI runs them on every push. |
 | `npm run typecheck`, `npm run build` | TypeScript and the Next.js production build. |
 
