@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+.env
+.env.*
+!.env.example
+data/state*.json
+*.log
+.DS_Store
+next-env.d.ts
+*.tsbuildinfo
+
+# written by next dev
+AGENTS.md

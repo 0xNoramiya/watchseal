@@ -1,0 +1,22 @@
+{
+  "mode": "echogram",
+  "seed": 20251014,
+  "height": 170,
+  "palette": "ice",
+  "columnWidth": 2,
+  "transmission": 5,
+  "band": 14,
+  "fade": 0.6,
+  "gain": 0.4,
+  "secondEcho": 0.5,
+  "slope": 0.18,
+  "roughness": 0.45,
+  "whiteLine": false,
+  "archSize": 1,
+  "handJitter": 0.5,
+  "tint": 0.6,
+  "figureSize": 12,
+  "figures": 3,
+  "contour": 1,
+  "ticks": 12
+}

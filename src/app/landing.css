@@ -1,0 +1,431 @@
+/* Landing page. Shares the app's tokens from globals.css. */
+
+.landing {
+  background: var(--snow);
+  color: var(--deep);
+}
+
+body:has(.landing) {
+  background: var(--snow);
+}
+
+.l-hero {
+  position: relative;
+  max-width: 1600px;
+  margin: 0 auto;
+  aspect-ratio: 1600 / 905;
+  max-height: 92vh;
+  overflow: hidden;
+  background: var(--ice);
+}
+
+.l-hero-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+}
+
+.l-nav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px clamp(16px, 4vw, 48px);
+  font-weight: 600;
+}
+
+.l-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+}
+
+.l-nav a {
+  color: var(--deep);
+  font-size: 15px;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+}
+
+.l-hero-copy {
+  position: absolute;
+  top: 7.5%;
+  right: clamp(16px, 6vw, 96px);
+  width: min(560px, 46%);
+}
+
+.l-hero-copy h1 {
+  font-size: clamp(28px, 2.9vw, 44px);
+  line-height: 1.06;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.l-hero-copy p {
+  margin-top: 14px;
+  font-size: clamp(15px, 1.15vw, 17px);
+  line-height: 1.5;
+  color: #24434f;
+  max-width: 46ch;
+}
+
+.l-ctas {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+
+.l-btn {
+  display: inline-block;
+  padding: 11px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  color: var(--deep);
+  border: 1px solid var(--deep);
+  background: rgba(248, 251, 252, 0.7);
+  transition: transform 80ms ease;
+}
+
+.l-btn:active {
+  transform: scale(0.98);
+}
+
+.l-btn.primary {
+  background: var(--deep);
+  color: var(--ice);
+}
+
+.l-btn:focus-visible,
+.l-nav a:focus-visible {
+  outline: 2px solid var(--memory);
+  outline-offset: 3px;
+}
+
+.l-section {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: clamp(48px, 7vw, 88px) clamp(16px, 4vw, 40px) 0;
+}
+
+.l-section h2 {
+  font-size: clamp(24px, 2.4vw, 34px);
+  line-height: 1.15;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  max-width: 24ch;
+}
+
+.l-section h3 {
+  font-size: 17px;
+  font-weight: 650;
+}
+
+.l-lede {
+  margin-top: 14px;
+  font-size: 17px;
+  line-height: 1.55;
+  max-width: 68ch;
+  color: #24434f;
+}
+
+/* the echogram, the page's one bold element */
+
+.l-echogram {
+  margin: 28px 0 0;
+}
+
+.l-callouts {
+  position: relative;
+  height: 64px;
+}
+
+.l-callouts span {
+  position: absolute;
+  bottom: 6px;
+  transform: translateX(-50%);
+  width: 220px;
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: center;
+  color: #24434f;
+}
+
+.l-callouts span::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  height: 8px;
+  border-left: 1px solid var(--seal);
+}
+
+.l-callouts b {
+  font-family: var(--font-hand), cursive;
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.l-paper-scroll {
+  overflow-x: auto;
+}
+
+.l-paper {
+  min-width: 720px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(15, 42, 54, 0.08);
+}
+
+.l-echogram figcaption {
+  margin-top: 10px;
+  font-size: 13.5px;
+  color: var(--seal);
+}
+
+.l-table-wrap {
+  margin-top: 32px;
+  overflow-x: auto;
+}
+
+.l-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14.5px;
+}
+
+.l-table th,
+.l-table td {
+  text-align: left;
+  padding: 10px 12px 10px 0;
+  border-bottom: 1px solid var(--line-soft);
+  vertical-align: top;
+}
+
+.l-table thead th {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--seal);
+}
+
+.l-table tbody th {
+  font-family: var(--font-hand), cursive;
+  font-size: 19px;
+  font-weight: 500;
+}
+
+.l-table tr.moved td:nth-child(4) .l-risk {
+  outline: 2px solid var(--memory);
+  outline-offset: 1px;
+}
+
+.l-risk {
+  display: inline-block;
+  min-width: 64px;
+  text-align: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 650;
+  text-transform: capitalize;
+}
+
+.l-low {
+  background: var(--zone-low);
+}
+.l-medium {
+  background: var(--zone-medium);
+}
+.l-high {
+  background: var(--zone-high);
+  color: white;
+}
+.l-critical {
+  background: var(--zone-critical);
+  color: white;
+}
+
+/* how it works: a real sequence, so it is numbered */
+
+.l-flow {
+  list-style: none;
+  counter-reset: step;
+  margin: 28px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.l-flow li {
+  counter-increment: step;
+  border-top: 2px solid var(--deep);
+  padding-top: 12px;
+}
+
+.l-flow li::before {
+  content: counter(step);
+  display: block;
+  font-family: var(--font-hand), cursive;
+  font-size: 26px;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.l-flow p {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #24434f;
+}
+
+.l-flow code,
+.l-split code {
+  font-size: 0.82em;
+}
+
+.l-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 40px;
+  align-items: start;
+}
+
+.l-split > div > p {
+  margin-top: 14px;
+  font-size: 16px;
+  line-height: 1.55;
+  max-width: 60ch;
+  color: #24434f;
+}
+
+.l-memory {
+  margin-top: 18px;
+  padding: 16px 18px;
+  background: var(--deep);
+  color: #d6e6ec;
+  border-radius: 10px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.l-memory .tag {
+  color: #9cc1ff;
+}
+
+.l-live-title {
+  margin-bottom: 14px;
+}
+
+.l-live {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 20px;
+}
+
+.l-live dd {
+  margin: 0;
+  font-size: 40px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.l-live dt {
+  margin-top: 4px;
+  font-size: 13.5px;
+  color: var(--seal);
+}
+
+.l-guard {
+  list-style: none;
+  margin: 24px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+}
+
+.l-guard p {
+  margin-top: 8px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #24434f;
+}
+
+.l-footer {
+  max-width: 1120px;
+  margin: clamp(56px, 8vw, 96px) auto 0;
+  padding: 28px clamp(16px, 4vw, 40px) 48px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.l-footer p {
+  max-width: 60ch;
+  font-size: 14px;
+  color: var(--seal);
+}
+
+@media (max-width: 980px) {
+  .l-flow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .l-guard,
+  .l-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .l-callouts {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .l-hero {
+    aspect-ratio: auto;
+    max-height: none;
+    display: flex;
+    flex-direction: column;
+  }
+  .l-hero-art {
+    position: relative;
+    height: auto;
+    order: 2;
+  }
+  .l-nav {
+    position: relative;
+    order: 0;
+  }
+  .l-hero-copy {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: auto;
+    padding: 4px 16px 20px;
+    order: 1;
+  }
+  .l-flow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
