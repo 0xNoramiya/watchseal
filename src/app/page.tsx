@@ -1,7 +1,9 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import echogramConfig from "@/lib/echogram/config.json";
 import { renderEchogram, type EchogramConfig } from "@/lib/echogram/render";
 import { CETUS_REHEARSAL } from "@/lib/echogram/sample";
+import EchogramReveal from "./echogram-reveal";
 import LiveCounters from "./live-counters";
 import "./landing.css";
 
@@ -27,16 +29,21 @@ const ROWS = [
 
 export default function Landing() {
   const { svg, layout } = renderEchogram(echogramConfig as EchogramConfig, CETUS_REHEARSAL, 1040);
-  const at = (version: number) => {
+  const SWEEP_S = 2.6; // must match l-sweep in landing.css
+  const frac = (version: number) => {
     const i = CETUS_REHEARSAL.findIndex((p) => p.version === version);
-    return `${((layout.left + (i + 0.5) * layout.segW) / layout.width) * 100}%`;
+    return (layout.left + (i + 0.5) * layout.segW) / layout.width;
   };
   const moved = ROWS.filter((r) => r.with !== r.without).length;
 
   return (
     <main className="landing">
       <header className="l-hero">
-        <img className="l-hero-art" src="/cover.jpg" alt="A harbor seal keeps watch above four depth bands; one sounding reaches the abyss." width={1600} height={905} />
+        <div className="l-hero-art">
+          <img src="/cover.jpg" alt="A harbor seal keeps watch above four depth bands; one sounding reaches the abyss." width={1600} height={905} />
+          {/* the one sounding that reaches the abyss */}
+          <span className="l-ping" aria-hidden />
+        </div>
         <nav className="l-nav">
           <span className="l-mark">
             <img src="/seal.svg" alt="" width={28} height={28} /> WatchSeal
@@ -44,12 +51,12 @@ export default function Landing() {
           <Link href="/dashboard">Open the dashboard</Link>
         </nav>
         <div className="l-hero-copy">
-          <h1>The upgrade watchdog that learns what your team calls noise.</h1>
-          <p>
+          <h1 style={{ "--i": 0 } as CSSProperties}>The upgrade watchdog that learns what your team calls noise.</h1>
+          <p style={{ "--i": 1 } as CSSProperties}>
             WatchSeal diffs every Sui package upgrade, has Claude rate the risk, and keeps your labels, rules and trusted signers in Walrus
             Memory. The next verdict is different because of them.
           </p>
-          <div className="l-ctas">
+          <div className="l-ctas" style={{ "--i": 2 } as CSSProperties}>
             <Link className="l-btn primary" href="/dashboard">
               Open the dashboard
             </Link>
@@ -68,16 +75,21 @@ export default function Landing() {
           Memory changed {moved} of {ROWS.length} verdicts.
         </p>
         <figure className="l-echogram">
-          <div className="l-callouts" aria-hidden>
-            {Object.entries(CALLOUTS).map(([v, text]) => (
-              <span key={v} style={{ left: at(Number(v)) }}>
-                <b>v{v}</b> {text}
-              </span>
-            ))}
-          </div>
-          <div className="l-paper-scroll">
-            <div className="l-paper" dangerouslySetInnerHTML={{ __html: svg }} />
-          </div>
+          <EchogramReveal>
+            <div className="l-callouts" aria-hidden>
+              {Object.entries(CALLOUTS).map(([v, text]) => (
+                <span key={v} style={{ left: `${frac(Number(v)) * 100}%`, "--delay": `${(frac(Number(v)) * SWEEP_S).toFixed(2)}s` } as CSSProperties}>
+                  <b>v{v}</b> {text}
+                </span>
+              ))}
+            </div>
+            <div className="l-paper-scroll">
+              <div className="l-paper">
+                <div dangerouslySetInnerHTML={{ __html: svg }} />
+                <span className="l-stylus" aria-hidden />
+              </div>
+            </div>
+          </EchogramReveal>
           <figcaption>
             Hand-written marks are the analyst&apos;s labels. Small arches are the memories that moved a verdict.
           </figcaption>
