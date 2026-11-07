@@ -192,7 +192,6 @@ export function renderEchogram(cfg: EchogramConfig, points: SoundingPoint[], wid
     return { svg: wrap(out, width, H), layout };
   }
 
-  // ---------------- echogram ----------------
   const waterTop = TOP + cfg.transmission;
   const floor = H - BOTTOM_PAD;
   const D = floor - waterTop;
@@ -300,8 +299,6 @@ export function renderEchogram(cfg: EchogramConfig, points: SoundingPoint[], wid
 function wrap(out: string[], W: number, H: number) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-hidden="true" style="display:block;width:100%;height:auto">${out.join("")}</svg>`;
 }
-
-// ---------------- survey sheet ----------------
 
 function renderSurvey(
   out: string[],

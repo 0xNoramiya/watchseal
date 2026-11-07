@@ -72,8 +72,6 @@ export class WatchSeal {
     return this.store.state;
   }
 
-  // ---------- memory helpers ----------
-
   async writeMemory(text: string, meta: Pick<MemoryLogEntry, "kind" | "protocol" | "origin">) {
     // One log row per distinct text: an identical write would resolve to the same Walrus blob anyway.
     const existing = this.state.memoryLog.find((e) => e.text === text && e.backend === this.memory.backend && e.status !== "failed");
@@ -121,8 +119,6 @@ export class WatchSeal {
     const memories = [...byText.values()].filter((m) => learnedBefore(m, version));
     return { memories, settled, pendingIncluded };
   }
-
-  // ---------- core analysis ----------
 
   private async rate(p: { name: string; slug: string }, version: number, fromVersion: number, diff: AbiDiff, signals: Signal[], baseSignals: Signal[], tx: UpgradeTx | null, memories: Memory[]) {
     const baseline = assess({ slug: p.slug, version, sender: tx?.sender ?? null, signals: baseSignals, memories: [] });
@@ -189,8 +185,6 @@ export class WatchSeal {
       memorySync: { settled: recall.settled, pendingIncluded: recall.pendingIncluded },
     };
   }
-
-  // ---------- public operations ----------
 
   addProtocol(input: { originalId: string; name?: string; slug?: string; mode: "replay" | "live"; startVersion?: number }) {
     return this.run(async () => {
@@ -488,8 +482,12 @@ export class WatchSeal {
   }
 }
 
-const g = globalThis as unknown as { __watchseal?: WatchSeal };
+// One engine per server process. Kept on globalThis so dev-server hot reloads reuse it.
+declare global {
+  var __watchseal: WatchSeal | undefined;
+}
+
 export function getEngine(): WatchSeal {
-  g.__watchseal ??= new WatchSeal();
-  return g.__watchseal;
+  globalThis.__watchseal ??= new WatchSeal();
+  return globalThis.__watchseal;
 }

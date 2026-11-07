@@ -130,7 +130,7 @@ export function assess({ slug, version, sender, signals, memories }: AssessInput
   const rules = relevant.filter((m) => m.tags.kind === "rule");
   const authorities = relevant.filter((m) => m.tags.kind === "authority");
 
-  // 1. Triage labels: newest matching label wins per signal. Identity signals are never relabeled.
+  // Triage labels: the newest matching label wins per signal. Identity signals are never relabeled.
   for (const s of signals) {
     if (IDENTITY_KINDS.includes(s.kind)) continue;
     const match = triage.filter((m) => triageMatches(m, s)).sort((a, b) => recency(b) - recency(a))[0];
@@ -145,7 +145,6 @@ export function assess({ slug, version, sender, signals, memories }: AssessInput
     );
   }
 
-  // 2. Standing rules.
   let ruleBoost = 0;
   let ruleFloor = false;
   for (const r of rules) {
@@ -162,7 +161,7 @@ export function assess({ slug, version, sender, signals, memories }: AssessInput
     for (const h of hits) influences.get(r.id)!.signalIds!.push(h.id);
   }
 
-  // 3. Authorities: they decide whether "signer-unknown" exists at all (computed upstream).
+  // Authorities decide whether "signer-unknown" exists at all; that part is computed upstream.
   const unknown = signals.find((s) => s.kind === "signer-unknown");
   for (const a of authorities) {
     if (unknown) touch(a, "escalated", `signer ${unknown.subject.slice(0, 10)}… is not this known authority`, unknown.id);
@@ -170,7 +169,6 @@ export function assess({ slug, version, sender, signals, memories }: AssessInput
   }
   for (const b of relevant.filter((m) => m.tags.kind === "baseline")) touch(b, "context", "protocol baseline");
 
-  // Score.
   const byKind = new Map<SignalKind, Signal[]>();
   for (const s of signals) byKind.set(s.kind, [...(byKind.get(s.kind) ?? []), s]);
   const breakdown: KindBreakdown[] = [];

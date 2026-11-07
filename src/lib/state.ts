@@ -70,13 +70,14 @@ export class StateStore {
     this.file = path.resolve(file);
     this.state = empty();
     if (existsSync(this.file)) {
+      let loaded: AppState;
       try {
-        const loaded = JSON.parse(readFileSync(this.file, "utf8")) as AppState;
-        loadCounters(loaded.counters);
-        this.state = { ...empty(), ...loaded, counters };
-      } catch {
-        this.state = empty();
+        loaded = JSON.parse(readFileSync(this.file, "utf8")) as AppState;
+      } catch (err) {
+        throw new Error(`${this.file} is not valid JSON (${(err as Error).message}). Fix it, or delete it to start fresh.`);
       }
+      loadCounters(loaded.counters);
+      this.state = { ...empty(), ...loaded, counters };
     }
   }
 

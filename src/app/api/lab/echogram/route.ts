@@ -13,7 +13,8 @@ export async function POST(req: Request) {
   const body = (await req.json()) as Partial<EchogramConfig>;
   const config: EchogramConfig = { ...DEFAULT_CONFIG };
   for (const k of Object.keys(DEFAULT_CONFIG) as (keyof EchogramConfig)[]) {
-    if (body[k] !== undefined && typeof body[k] === typeof DEFAULT_CONFIG[k]) (config as unknown as Record<string, unknown>)[k] = body[k];
+    const v = body[k];
+    if (v !== undefined && typeof v === typeof DEFAULT_CONFIG[k]) Object.assign(config, { [k]: v });
   }
   writeFileSync(path.join(process.cwd(), FILE), JSON.stringify(config, null, 2) + "\n");
   return NextResponse.json({ ok: true, path: FILE, config });

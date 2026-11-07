@@ -167,7 +167,7 @@ export default function Dashboard() {
   const timelineFor = view?.watchlist.find((w) => w.slug === focusSlug) ?? view?.watchlist[0] ?? null;
   const [help, setHelp] = useState(false);
 
-  // Keyboard shortcuts for recording the demo. Ignored while typing in a field.
+  // Keyboard shortcuts (press ? for the list). Ignored while typing in a field.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;

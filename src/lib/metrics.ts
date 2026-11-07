@@ -9,9 +9,12 @@ export interface Counters {
   alerts: number;
 }
 
-const g = globalThis as unknown as { __watchsealCounters?: Counters };
+// Kept on globalThis so dev-server hot reloads keep counting from where they were.
+declare global {
+  var __watchsealCounters: Counters | undefined;
+}
 
-export const counters: Counters = (g.__watchsealCounters ??= {
+export const counters: Counters = (globalThis.__watchsealCounters ??= {
   tatumCalls: 0,
   archivalCalls: 0,
   memoryWrites: 0,
@@ -29,6 +32,7 @@ export function bump(key: keyof Counters, n = 1) {
 export function loadCounters(saved: Partial<Counters> | undefined) {
   if (!saved) return;
   for (const k of Object.keys(counters) as (keyof Counters)[]) {
-    if (typeof saved[k] === "number" && saved[k]! > counters[k]) counters[k] = saved[k]!;
+    const v = saved[k];
+    if (typeof v === "number" && v > counters[k]) counters[k] = v;
   }
 }

@@ -90,7 +90,7 @@ export const SCHEMES: SignatureScheme[] = [
 ];
 
 export function schemeFromCode(code: number | undefined | null): SignatureScheme {
-  return code !== undefined && code !== null && SCHEMES[code] ? SCHEMES[code] : "unknown";
+  return (code != null && SCHEMES[code]) || "unknown";
 }
 
 export const POLICY_NAMES: Record<number, string> = {
