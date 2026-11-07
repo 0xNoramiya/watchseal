@@ -1,5 +1,7 @@
 # WatchSeal
 
+[![CI](https://github.com/0xNoramiya/watchseal/actions/workflows/ci.yml/badge.svg)](https://github.com/0xNoramiya/watchseal/actions/workflows/ci.yml)
+
 ![WatchSeal: a harbor seal keeps watch above four depth bands, one sounding reaching the abyss](docs/cover.jpg)
 
 WatchSeal watches Sui protocols for package upgrades and learns how you triage them.
@@ -121,7 +123,7 @@ The upgrade-history drawing is generated from a config. In development, `/lab/ec
 | `npm run smoke` | Tatum `listPackageVersions` and `getPackage` on Cetus, bytecode, upgrade tx and UpgradeCap; Walrus Memory health plus one remember and recall; one Claude call. Reports PASS, FAIL or SKIP per backend. |
 | `npm run seed-memory` | Writes 12 real starting memories to Walrus Mainnet and waits for every blob id. |
 | `npm run record-fixtures` | Re-records Cetus and DeepBook history from Mainnet into `fixtures/`. |
-| `npm test` | Offline Cetus replay v9 to v15 with the triage script above, plus an UpgradeCap-move alert in live mode (`node:test`, MemWalMock, deterministic engine). |
+| `npm test` | 29 offline tests (`node:test`, MemWalMock, deterministic engine). The replay test runs Cetus v9 to v15 with the triage script above and checks that memory changes the v10 and v14 verdicts. Unit tests cover the ABI normalizer, diff and signals, the memory format and rule parser, the scoring guardrails, agent output parsing and the echogram renderer. CI runs them on every push. |
 | `npm run typecheck`, `npm run build` | TypeScript and the Next.js production build. |
 
 ## Memory format
@@ -149,7 +151,8 @@ src/lib/echogram/    pure SVG renderer for the upgrade history, plus the saved c
 src/app/             Next.js dashboard and API routes (src/app/lab/echogram is the dev-only generator)
 scripts/             smoke, seed-memory, record-fixtures
 fixtures/            recorded Mainnet history for Cetus CLMM v8 to v15 and DeepBook v4 to v9
-test/                offline replay test
+test/                replay test and unit tests
+.github/workflows/   CI: typecheck, tests and build on Node 24
 ```
 
 App state (watchlist, alerts, memory write log, counters) lives in `data/state.json`. Walrus is the source of truth for what was learned.
