@@ -160,7 +160,7 @@ export default function Landing() {
           <h2>Memory you can audit</h2>
           <p>
             Every lesson is a sentence behind a tag header, embedded and SEAL-encrypted by the Walrus Memory relayer and stored as a
-            Walrus blob. The dashboard links each memory that moved a verdict to its blob, and you can ask the memory directly: "who is allowed to upgrade Cetus?" is a semantic recall, not a keyword search.
+            Walrus blob. The dashboard links each memory that moved a verdict to its blob, and you can ask the memory directly: "who is allowed to upgrade Cetus?" is a semantic recall, not a keyword search. It also checks every memory it wrote against the relayer&apos;s own inventory, so &quot;stored on Walrus&quot; is something you can verify.
           </p>
           <pre className="l-memory">
             <span className="tag">[watchseal][protocol:cetus-clmm][kind:triage][label:false-positive][sig:bytecode-only,new-public-fn][v13]</span>

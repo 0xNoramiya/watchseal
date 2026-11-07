@@ -1487,6 +1487,29 @@ kbd {
   }
 }
 
+.inventory {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--seal);
+  margin: -2px 0 10px;
+}
+
+.inventory strong {
+  color: var(--deep);
+}
+
+.inventory .link {
+  color: var(--memory);
+  padding: 0;
+  font-size: 12.5px;
+}
+
+.verified {
+  font-family: var(--font-sans);
+  color: var(--down);
+  font-weight: 600;
+}
+
 .agent-id {
   font-size: 12.5px;
   margin-bottom: 8px;

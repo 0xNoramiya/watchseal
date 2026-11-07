@@ -972,9 +972,37 @@ function Rules({ view, busy, act }: { view: View | null; busy: string | null; ac
   );
 }
 
+interface Inventory {
+  ok: boolean;
+  available?: boolean;
+  count?: number;
+  bytes?: number;
+  paidThroughEpoch?: number | null;
+  verified?: string[];
+  written?: number;
+  error?: string;
+}
+
 function MemoryLog({ log, status, slug }: { log: MemoryLogEntry[]; status: Status | null; slug: string | null }) {
   const [tab, setTab] = useState<"written" | "ask">("written");
   const stored = log.filter((e) => e.status === "stored").length;
+  const [inv, setInv] = useState<Inventory | null>(null);
+  const [checking, setChecking] = useState(false);
+  const check = useCallback(async () => {
+    setChecking(true);
+    try {
+      setInv(await (await fetch("/api/inventory", { cache: "no-store" })).json());
+    } catch {
+      setInv({ ok: false, error: "Could not reach the Walrus Memory relayer." });
+    } finally {
+      setChecking(false);
+    }
+  }, []);
+  // Re-check whenever another write lands.
+  useEffect(() => {
+    if (status?.memory.backend === "walrus") check();
+  }, [stored, status?.memory.backend, check]);
+  const verified = new Set(inv?.verified ?? []);
   return (
     <div className="panel memlog">
       <div className="panel-head">
@@ -986,6 +1014,24 @@ function MemoryLog({ log, status, slug }: { log: MemoryLogEntry[]; status: Statu
       {status?.memory.delegatePublicKey && (
         <p className="muted agent-id">
           Agent key <span className="mono">{short(status.memory.delegatePublicKey, 8)}</span> in namespace {status.memory.namespace}
+        </p>
+      )}
+      {status?.memory.backend === "walrus" && (
+        <p className="inventory">
+          {inv?.ok && inv.available ? (
+            <>
+              The relayer reports <strong>{inv.count}</strong> blob{inv.count === 1 ? "" : "s"} in this namespace ({((inv.bytes ?? 0) / 1024).toFixed(1)} KB
+              encrypted{inv.paidThroughEpoch ? `, paid through Walrus epoch ${inv.paidThroughEpoch}` : ""}). {inv.verified?.length} of {inv.written} written
+              here are verified.
+            </>
+          ) : inv && !inv.ok ? (
+            <span className="s-failed">{inv.error}</span>
+          ) : (
+            "Checking the relayer's inventory…"
+          )}{" "}
+          <button className="link" onClick={check} disabled={checking}>
+            {checking ? "Checking…" : "Check again"}
+          </button>
         </p>
       )}
       <div className="tabs mem-tabs" role="tablist">
@@ -1022,7 +1068,10 @@ function MemoryLog({ log, status, slug }: { log: MemoryLogEntry[]; status: Statu
                   {e.status === "failed" ? (
                     <span className="s-failed">failed: {e.error}</span>
                   ) : e.status === "stored" && e.blobId ? (
-                    <BlobLink id={e.blobId} pending={false} backend={e.backend} />
+                    <>
+                      <BlobLink id={e.blobId} pending={false} backend={e.backend} />
+                      {verified.has(e.blobId) && <span className="verified"> verified on Walrus</span>}
+                    </>
                   ) : (
                     <span className="s-pending">embedding, encrypting, uploading to Walrus</span>
                   )}

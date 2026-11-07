@@ -401,6 +401,28 @@ export class WatchSeal {
     return { query: q, results, ms: Date.now() - t0, backend: this.memory.backend, namespace: this.memory.namespace };
   }
 
+  /** Cross-checks the app's write log against what the Walrus Memory relayer reports for the namespace. */
+  async inventory() {
+    await this.ready;
+    const t0 = Date.now();
+    const items = await this.memory.inventory();
+    if (!items) return { available: false as const, backend: this.memory.backend, namespace: this.memory.namespace };
+    const onWalrus = new Set(items.map((i) => i.blobId));
+    const written = this.state.memoryLog.filter((e) => e.backend === "walrus" && e.status === "stored" && e.blobId);
+    const epochs = items.map((i) => i.endEpoch).filter((e): e is number => typeof e === "number");
+    return {
+      available: true as const,
+      backend: this.memory.backend,
+      namespace: this.memory.namespace,
+      count: items.length,
+      bytes: items.reduce((n, i) => n + (i.size || 0), 0),
+      paidThroughEpoch: epochs.length ? Math.min(...epochs) : null,
+      verified: written.filter((e) => onWalrus.has(e.blobId!)).map((e) => e.blobId!),
+      written: written.length,
+      ms: Date.now() - t0,
+    };
+  }
+
   resetProtocol(slug: string) {
     return this.run(async () => {
       const p = this.store.protocol(slug);

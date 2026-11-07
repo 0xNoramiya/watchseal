@@ -159,6 +159,26 @@ export class MemoryStore {
     return res.results.map((r) => toMemory(r)).filter((m): m is Memory => m !== null);
   }
 
+  /**
+   * The relayer's own inventory for this namespace (metadata only, no decryption).
+   * This is what Walrus actually holds, independent of the app's local write log.
+   */
+  async inventory(maxPages = 10): Promise<{ blobId: string; size: number; createdAt: string; endEpoch: number | null; status: string }[] | null> {
+    if (!(this.client instanceof MemWal)) return null;
+    const out: { blobId: string; size: number; createdAt: string; endEpoch: number | null; status: string }[] = [];
+    let cursor: string | undefined;
+    for (let page = 0; page < maxPages; page++) {
+      const res = await this.client.listMemories({ namespace: this.namespace, limit: 500, cursor });
+      for (const m of res.memories) {
+        if (m.namespace_id !== this.namespace) continue;
+        out.push({ blobId: m.blob_id, size: m.size, createdAt: m.created_at, endEpoch: m.end_epoch, status: m.status });
+      }
+      if (!res.has_more || !res.next_cursor) break;
+      cursor = res.next_cursor;
+    }
+    return out;
+  }
+
   async health(): Promise<{ ok: boolean; detail: string }> {
     try {
       const h = await this.client.health();

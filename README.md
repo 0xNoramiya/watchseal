@@ -16,9 +16,9 @@ Built for the Total Recall hackathon (Tatum x Walrus), Track 2 "Smart Agents for
 
 2 minutes 54 seconds, recorded against Sui Mainnet with live Tatum, Walrus Memory and Claude. Waits for Walrus writes and Claude are fast-forwarded and marked on screen; everything else plays at normal speed. [Download the MP4](https://github.com/0xNoramiya/watchseal/releases/download/v0.1.0/watchseal-demo.mp4).
 
-![WatchSeal live on Mainnet: Claude rates Cetus CLMM v12 critical because a standing rule recalled from Walrus Memory matched governance_fund_withdrawal; without memory it is high](docs/screenshot-live.png)
+![WatchSeal live on Mainnet: Claude rates Cetus CLMM v12 critical because a standing rule recalled from Walrus Memory matched governance_fund_withdrawal; without memory it is high](docs/screenshot-live.jpg)
 
-*From a live run. Tatum gRPC served the chain reads, the memories sit on Walrus Mainnet (blob ids in the right column), and Claude wrote the verdict. Memory raised Cetus v12 from high to critical.*
+*From the live run in the demo video. Tatum gRPC served the chain reads and Claude wrote the verdict. Memory raised Cetus v12 from high to critical, and the memory column shows the Walrus relayer confirming all 18 memories the app wrote.*
 
 ## How it works
 
@@ -73,7 +73,7 @@ Real Cetus CLMM history, replayed offline (`npm test`):
 
 | Requirement | Where |
 |---|---|
-| Walrus Memory writes on Mainnet (10+) | `npm run seed-memory` writes 12 baseline, authority and rule memories for Cetus and DeepBook to the Mainnet relayer and prints each blob id. Every label, rule and trusted signer in the app writes another. The dashboard's "Memory on Walrus" column lists them with status and blob ids. |
+| Walrus Memory writes on Mainnet (10+) | `npm run seed-memory` writes 12 baseline, authority and rule memories for Cetus and DeepBook to the Mainnet relayer and prints each blob id. Every label, rule and trusted signer in the app writes another. The dashboard's "Memory on Walrus" column lists them with blob ids and checks them against the relayer's own inventory (`listMemories`), so each one is marked verified on Walrus. |
 | Tatum RPC for onchain reads | `src/lib/chain/tatum.ts`, `src/lib/chain/grpc-reader.ts`. All live reads (package versions, ABI, bytecode, upgrade tx, UpgradeCap) go through Tatum Sui gRPC. The top bar counts Tatum calls and archival calls separately. |
 | Agent that learns over time | `src/lib/engine.ts` (recall and triage), `src/lib/analysis/risk.ts` (how memories move the verdict), `src/lib/agent/claude.ts` |
 | Public repo, demo, blog | This repo, the [demo video](https://github.com/0xNoramiya/watchseal/releases/download/v0.1.0/watchseal-demo.mp4) and its script in [`DEMO.md`](DEMO.md), [`BLOG.md`](BLOG.md). Cover, video title card and social preview are in `docs/` (illustration generated with Higgsfield GPT Image 2). |
@@ -115,8 +115,9 @@ The landing page at `/` shows the real Cetus learning curve and live counters; t
 3. Read the verdict, the depth gauge and the **Memory influence** panel, which lists every recalled memory that moved the verdict, with its Walrus blob id.
 4. **Label** the alert. **Compare without memory** re-runs it with zero memories.
 5. Add **standing rules** in plain English: "Always escalate new withdraw functions", "Ignore bytecode-only changes in config". Rules can apply to all protocols or one.
-6. **Ask the memory.** The "Ask the memory" tab in the memory column runs a live semantic recall against Walrus: "Who is allowed to upgrade Cetus?" returns the known signers, "What did I call noise?" returns the false-positive labels, each with its similarity and blob id.
-7. The **upgrade history** at the top is drawn as an echo-sounder paper recording. The dark bottom echo is each verdict with memory (deeper is riskier), the faint second echo is the verdict without memory, small arches are memories that moved a verdict, and each version is a fix mark with the analyst's label written in. Click a version to open it.
+6. **Check Walrus.** The memory column reads the relayer's inventory for the namespace (`listMemories`, metadata only): how many blobs it holds, their encrypted size, the Walrus epoch they are paid through, and which of the app's writes it confirms. Each confirmed memory is marked "verified on Walrus".
+7. **Ask the memory.** The "Ask the memory" tab in the memory column runs a live semantic recall against Walrus: "Who is allowed to upgrade Cetus?" returns the known signers, "What did I call noise?" returns the false-positive labels, each with its similarity and blob id.
+8. The **upgrade history** at the top is drawn as an echo-sounder paper recording. The dark bottom echo is each verdict with memory (deeper is riskier), the faint second echo is the verdict without memory, small arches are memories that moved a verdict, and each version is a fix mark with the analyst's label written in. Click a version to open it.
 
 ### Echogram lab
 
