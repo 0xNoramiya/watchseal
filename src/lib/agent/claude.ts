@@ -72,13 +72,13 @@ export interface AgentInput {
 
 let client: Anthropic | null = null;
 function getClient(): Anthropic | null {
-  if (!env.anthropicKey) return null;
+  if (!env.anthropicKey || env.offline) return null;
   client ??= new Anthropic({ apiKey: env.anthropicKey, maxRetries: 2, timeout: 90_000 });
   return client;
 }
 
 export function claudeAvailable() {
-  return !!env.anthropicKey;
+  return !!env.anthropicKey && !env.offline;
 }
 
 function compactDiff(d: AbiDiff) {

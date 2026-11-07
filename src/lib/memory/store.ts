@@ -61,7 +61,8 @@ export class MemoryStore {
   constructor(opts: { forceMock?: boolean; namespace?: string; onChange?: (e: MemoryLogEntry) => void } = {}) {
     this.namespace = opts.namespace ?? env.memwalNamespace;
     this.onChange = opts.onChange ?? (() => {});
-    const creds = opts.forceMock || env.memwalMock ? null : resolveCredentials();
+    // Offline mode means no network at all: memories stay in an in-process mock.
+    const creds = opts.forceMock || env.memwalMock || env.offline ? null : resolveCredentials();
     if (creds) {
       this.client = MemWal.create({
         key: creds.key,

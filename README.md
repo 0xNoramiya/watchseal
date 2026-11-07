@@ -80,6 +80,16 @@ Real Cetus CLMM history, replayed offline (`npm test`):
 
 For the submission form, `MEMWAL_AGENT_ID` is the delegate public key. `npm run smoke` and `npm run seed-memory` print it, and the dashboard shows it in the memory column.
 
+## Try it in one minute, no keys
+
+```bash
+git clone https://github.com/0xNoramiya/watchseal && cd watchseal
+npm install
+npm run offline     # open http://localhost:3000/dashboard
+```
+
+Offline mode needs no accounts and no network for the app itself. It replays the recorded Cetus and DeepBook history from `fixtures/`, keeps memories in an in-process mock, rates with the deterministic engine, and saves its state to `data/state-offline.json`. Add Cetus from v9 and press N: the same replay, labels, rules, compare and recall work, and the top bar says which backends are offline. For the live version against Tatum, Walrus Mainnet and Claude, follow the setup below.
+
 ## Setup
 
 You need Node.js 22.23.4+ (22.x) or 24.22.1+ (24.x); the Walrus Memory SDK refuses older patch releases.
@@ -100,7 +110,8 @@ npm run dev             # http://localhost:3000 (landing), /dashboard (the app)
 
 Every backend degrades instead of failing:
 
-- No Tatum key, or `WATCHSEAL_OFFLINE=1`: replays recorded Mainnet history from `fixtures/`.
+- `WATCHSEAL_OFFLINE=1` (what `npm run offline` sets): recorded history, mock memory and the deterministic engine, all at once.
+- No Tatum key: replays recorded Mainnet history from `fixtures/`.
 - No MemWal keys: uses `~/.memwal/credentials.json` from the Walrus Memory Claude Code plugin login if present, otherwise the offline `MemWalMock`.
 - No Anthropic key, a refusal, or invalid output: the deterministic engine rates the alert with the same memories.
 

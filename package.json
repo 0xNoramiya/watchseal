@@ -10,6 +10,7 @@
   },
   "scripts": {
     "dev": "next dev",
+    "offline": "WATCHSEAL_OFFLINE=1 next dev",
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",

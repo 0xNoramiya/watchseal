@@ -133,7 +133,7 @@ export class WatchSeal {
     if (this.noClaude || !claudeAvailable()) {
       const { fallbackVerdict } = await import("./agent/verdict");
       if (!this.noClaude) bump("fallbackVerdicts");
-      verdict = fallbackVerdict({ protocolName: p.name, version, signals, assessment, memoriesUsed: memories.length, note: this.noClaude ? undefined : "ANTHROPIC_API_KEY not set" });
+      verdict = fallbackVerdict({ protocolName: p.name, version, signals, assessment, memoriesUsed: memories.length, note: this.noClaude ? undefined : env.offline ? "offline mode" : "ANTHROPIC_API_KEY not set" });
     } else {
       this.step(`Claude is rating v${version} with ${memories.length} memor${memories.length === 1 ? "y" : "ies"}`);
       verdict = await rateWithClaude(input);

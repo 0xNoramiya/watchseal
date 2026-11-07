@@ -47,7 +47,8 @@ export const env = {
   get anthropicModel() {
     return str("ANTHROPIC_MODEL", "claude-sonnet-5-5");
   },
+  /** Offline sessions keep their own state so they never mix with real Walrus memories. */
   get stateFile() {
-    return str("WATCHSEAL_STATE_FILE", "data/state.json");
+    return str("WATCHSEAL_STATE_FILE", this.offline ? "data/state-offline.json" : "data/state.json");
   },
 };
