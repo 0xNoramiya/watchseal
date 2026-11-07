@@ -208,7 +208,7 @@ export class WatchSeal {
       const startV = versions.find((v) => v.version === start);
       if (!startV) throw new Error(`v${start} not found (latest is v${latest})`);
 
-      this.state.watchlist = this.state.watchlist.filter((w) => w.slug !== slug);
+      const existingAt = this.state.watchlist.findIndex((w) => w.slug === slug);
       this.state.alerts = this.state.alerts.filter((a) => a.slug !== slug);
       const p: WatchedProtocol = {
         slug,
@@ -222,7 +222,9 @@ export class WatchSeal {
         lastCap: null,
         addedAt: new Date().toISOString(),
       };
-      this.state.watchlist.push(p);
+      // Re-adding keeps the protocol's place in the watchlist.
+      if (existingAt >= 0) this.state.watchlist[existingAt] = p;
+      else this.state.watchlist.push(p);
 
       // Baseline + the baseline signer become memories (dedupe keeps re-adds idempotent on Walrus).
       this.step(`Reading the v${start} baseline and writing it to Walrus Memory`);

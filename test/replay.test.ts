@@ -151,3 +151,11 @@ test("live scan alerts when the UpgradeCap moves without an upgrade", async () =
   assert.equal(capAlert.verdict.risk, "high", "cap move plus a matching rule is at least high");
   assert.equal((await ws.scan()).length, 0, "the new owner becomes the reference after one alert");
 });
+
+test("re-adding a protocol keeps its place in the watchlist", async () => {
+  const ws = makeEngine();
+  await ws.addProtocol({ originalId: CETUS, mode: "replay", startVersion: 9 });
+  await ws.addProtocol({ originalId: "0x2c8d603bc51326b8c13cef9dd07031a408a48dddb541963357661df5d3204809", mode: "replay", startVersion: 5 });
+  await ws.addProtocol({ originalId: CETUS, mode: "replay", startVersion: 9 });
+  assert.deepEqual(ws.state.watchlist.map((w) => w.slug), ["cetus-clmm", "deepbook"]);
+});

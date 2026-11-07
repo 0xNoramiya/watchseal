@@ -123,9 +123,27 @@ export default function Dashboard() {
   );
 
   const alerts = view?.alerts ?? [];
-  const current = useMemo(() => alerts.find((a) => a.id === selected) ?? alerts[0] ?? null, [alerts, selected]);
+  // The protocol you are working on: the one you just added, pulled the next upgrade for, or selected an alert from.
+  const [focus, setFocus] = useState<string | null>(null);
+  const current = useMemo(
+    () => alerts.find((a) => a.id === selected) ?? (focus ? alerts.find((a) => a.slug === focus) : alerts[0]) ?? null,
+    [alerts, selected, focus],
+  );
+  const select = useCallback(
+    (id: string) => {
+      setSelected(id);
+      const a = alerts.find((x) => x.id === id);
+      if (a) setFocus(a.slug);
+    },
+    [alerts],
+  );
+  const focusOn = useCallback((slug: string, alertId?: string) => {
+    setFocus(slug);
+    setSelected(alertId ?? null);
+  }, []);
   const counters = status?.counters ?? view?.counters;
-  const timelineFor = view?.watchlist.find((w) => w.slug === current?.slug) ?? view?.watchlist[0] ?? null;
+  const focusSlug = current?.slug ?? focus;
+  const timelineFor = view?.watchlist.find((w) => w.slug === focusSlug) ?? view?.watchlist[0] ?? null;
   const [help, setHelp] = useState(false);
 
   // Keyboard shortcuts for recording the demo. Ignored while typing in a field.
@@ -138,10 +156,10 @@ export default function Dashboard() {
       if (key === "escape") return setHelp(false);
       if (e.key === "?") return setHelp((h) => !h);
       if (busy) return;
-      const proto = view?.watchlist.find((w) => w.slug === current?.slug && w.mode === "replay") ?? view?.watchlist.find((w) => w.mode === "replay");
+      const proto = view?.watchlist.find((w) => w.slug === focusSlug && w.mode === "replay") ?? view?.watchlist.find((w) => w.mode === "replay");
       const labels: Record<string, TriageLabel> = { e: "expected", s: "suspicious", f: "false-positive" };
       if (key === "n" && proto && proto.remaining > 0) {
-        act(`next:${proto.slug}`, { op: "next", slug: proto.slug }, (a) => setSelected((a as Alert).id));
+        act(`next:${proto.slug}`, { op: "next", slug: proto.slug }, (a) => focusOn(proto.slug, (a as Alert).id));
       } else if (labels[key] && current) {
         act(`triage:${labels[key]}`, { op: "triage", alertId: current.id, label: labels[key] });
       } else if (key === "c" && current) {
@@ -149,13 +167,13 @@ export default function Dashboard() {
       } else if ((key === "j" || key === "k") && alerts.length) {
         const i = Math.max(0, alerts.findIndex((a) => a.id === current?.id));
         const next = alerts[Math.min(alerts.length - 1, Math.max(0, i + (key === "j" ? 1 : -1)))];
-        setSelected(next.id);
+        select(next.id);
       } else return;
       e.preventDefault();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [act, alerts, busy, current, view]);
+  }, [act, alerts, busy, current, view, focusSlug, focusOn, select]);
 
   return (
     <div className="app">
@@ -171,12 +189,12 @@ export default function Dashboard() {
       )}
       <main className="grid">
         <section className="col left" aria-label="Watchlist and alerts">
-          <Watchlist view={view} busy={busy} act={act} onAlert={(id) => setSelected(id)} />
-          <Feed alerts={alerts} current={current} onSelect={setSelected} />
+          <Watchlist view={view} busy={busy} act={act} onFocus={focusOn} />
+          <Feed alerts={alerts} current={current} onSelect={select} />
         </section>
         <section className="col center" aria-label="Alert detail">
           {(busy || view?.activity) && <Activity activity={view?.activity ?? null} />}
-          {timelineFor && <Soundings protocol={timelineFor} alerts={alerts} current={current} onSelect={setSelected} />}
+          {timelineFor && <Soundings protocol={timelineFor} alerts={alerts} current={current} onSelect={select} />}
           {current ? (
             <AlertDetail alert={current} busy={busy} act={act} memoryLog={view?.memoryLog ?? []} backend={view?.memoryBackend ?? "mock"} />
           ) : (
@@ -285,7 +303,7 @@ function Counter({ k, v }: { k: string; v?: number }) {
 
 type Act = (key: string, body: Record<string, unknown>, after?: (result: unknown) => void) => Promise<void>;
 
-function Watchlist({ view, busy, act, onAlert }: { view: View | null; busy: string | null; act: Act; onAlert: (id: string) => void }) {
+function Watchlist({ view, busy, act, onFocus }: { view: View | null; busy: string | null; act: Act; onFocus: (slug: string, alertId?: string) => void }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ originalId: "", name: "", mode: "replay", startVersion: "" });
   const rows = view?.watchlist ?? [];
@@ -296,7 +314,7 @@ function Watchlist({ view, busy, act, onAlert }: { view: View | null; busy: stri
         <h2>Watchlist</h2>
         <div className="row-actions">
           {rows.some((r) => r.mode === "live") && (
-            <button className="btn ghost" disabled={!!busy} onClick={() => act("scan", { op: "scan" }, (r) => { const created = r as Alert[]; if (created[0]) onAlert(created[0].id); })}>
+            <button className="btn ghost" disabled={!!busy} onClick={() => act("scan", { op: "scan" }, (r) => { const created = r as Alert[]; if (created[0]) onFocus(created[0].slug, created[0].id); })}>
               {busy === "scan" ? "Scanning…" : "Scan live"}
             </button>
           )}
@@ -310,7 +328,10 @@ function Watchlist({ view, busy, act, onAlert }: { view: View | null; busy: stri
           className="add-form"
           onSubmit={(e) => {
             e.preventDefault();
-            act("add", { op: "add", ...form }, () => setOpen(false));
+            act("add", { op: "add", ...form }, (p) => {
+              setOpen(false);
+              onFocus((p as WatchRow).slug);
+            });
           }}
         >
           <div className="presets">
@@ -368,7 +389,7 @@ function Watchlist({ view, busy, act, onAlert }: { view: View | null; busy: stri
                   className="btn primary"
                   title="Shortcut: N"
                   disabled={!!busy || r.remaining === 0}
-                  onClick={() => act(`next:${r.slug}`, { op: "next", slug: r.slug }, (a) => onAlert((a as Alert).id))}
+                  onClick={() => act(`next:${r.slug}`, { op: "next", slug: r.slug }, (a) => onFocus(r.slug, (a as Alert).id))}
                 >
                   {busy === `next:${r.slug}` ? "Diffing and recalling…" : r.remaining === 0 ? "Caught up" : `Next upgrade (v${r.cursor + 1})`}
                 </button>
